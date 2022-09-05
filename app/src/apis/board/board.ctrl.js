@@ -21,6 +21,21 @@ const process = {
       throw res.status(500).json(err);
     }
   },
+
+  createBoard: async (req, res) => {
+    try {
+      const board = new Board(req);
+      const response = await board.createBoard(req);
+
+      if (response.success) {
+        return res.status(200).json(response);
+      } else {
+        return res.status(400).json(response);
+      }
+    } catch (err) {
+      throw res.status(500).json(err);
+    }
+  },
 };
 
 module.exports = { process };

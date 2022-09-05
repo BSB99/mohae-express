@@ -22,6 +22,38 @@ class BoardStorage {
       throw { msg: `${err} : 게시글 상세조회 에러 입니다` };
     }
   }
+
+  static async createBoard(boardInfo) {
+    try {
+      const {
+        title,
+        description,
+        price,
+        summary,
+        target,
+        deadline,
+        user_no,
+        category_no,
+        area_no,
+      } = boardInfo;
+      const query = `INSERT INTO boards(title, description, price, summary, target, deadline, user_no, category_no, area_no) VALUES(?,?,?,?,?,?,?,?,?)`;
+      const insertResult = await mysql.query(query, [
+        title,
+        description,
+        price,
+        summary,
+        target,
+        deadline,
+        user_no,
+        category_no,
+        area_no,
+      ]);
+
+      return insertResult[0].affectedRows;
+    } catch (err) {
+      throw { msg: `${err} : 게시글 생성 에러 입니다` };
+    }
+  }
 }
 
 module.exports = BoardStorage;

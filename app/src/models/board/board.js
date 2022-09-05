@@ -31,6 +31,20 @@ class Board {
       throw { err };
     }
   }
+
+  async createBoard() {
+    try {
+      const body = this.body;
+      const createdBoard = await BoardStorage.createBoard(body);
+      if (createdBoard) {
+        return { success: true, msg: "게시글 생성이 완료되었습니다." };
+      } else {
+        return { success: false, msg: "게시글 생성이 실패하였습니다." };
+      }
+    } catch (err) {
+      throw { err };
+    }
+  }
 }
 
 module.exports = Board;
