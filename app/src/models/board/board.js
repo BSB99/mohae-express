@@ -1,4 +1,6 @@
 const BoardStorage = require("./boardStorage");
+const {category} = require('../category/category');
+const { area } = require("../area/area");
 
 class Board {
   constructor(req) {
@@ -34,8 +36,19 @@ class Board {
 
   async createBoard() {
     try {
-      const body = this.body;
-      const createdBoard = await BoardStorage.createBoard(body);
+      const boardInfo = this.body;
+    
+      const categoryConfirm = await category.confirm(boardInfo.category_no);
+      if (categoryConfirm !== undefined) {
+        return categoryConfirm;
+      }
+
+      const areaConfirm = await area.confirm(boardInfo.area_no);
+      if (areaConfirm !== undefined) {
+        return areaConfirm;
+      }
+
+      const createdBoard = await BoardStorage.createBoard(boardInfo);
       if (createdBoard) {
         return { success: true, msg: "게시글 생성이 완료되었습니다." };
       } else {
@@ -46,5 +59,5 @@ class Board {
     }
   }
 }
-
+  
 module.exports = Board;
