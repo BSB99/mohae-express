@@ -92,6 +92,29 @@ class Board {
       throw {err};
     }
   }
+
+  async deleteBoard() {
+    try {
+      const boardNo = this.params.no;
+
+      const boardConfirm = await BoardStorage.readByOneBoard(boardNo);
+      if (!boardConfirm.length) {
+        return {
+          success: false,
+          msg: `${boardNo}번 게시글은 없는 게시글 입니다.`,
+        };
+      }
+
+      const deletedBoard = await BoardStorage.deleteBoard(boardNo);
+      if (deletedBoard) {
+        return { success: true, msg: "게시글 삭제가 완료되었습니다." };
+      } else {
+        return { success: false, msg: "게시글 삭제가 실패하였습니다." };
+      }
+    }catch (err) {
+      throw {err};
+    }
+  }
 }
   
 module.exports = Board;
