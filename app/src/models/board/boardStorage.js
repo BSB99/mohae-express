@@ -54,6 +54,37 @@ class BoardStorage {
       throw { msg: `${err} : 게시글 생성 에러 입니다` };
     }
   }
+
+  static async updateBoard(boardNo, boardInfo) {
+    try {
+      const {
+        title,
+        description,
+        price,
+        summary,
+        target,
+        deadline,
+        category_no,
+        area_no,
+      } = boardInfo;
+      const query = `UPDATE boards SET title = ?, description = ?, price = ?, summary = ?, target = ?, deadline = ?, category_no = ?, area_no = ?
+      where boards.no = ?;`
+      const updateResult = await mysql.query(query,[ title,
+        description,
+        price,
+        summary,
+        target,
+        deadline,
+        category_no,
+        area_no,
+        boardNo
+      ]);
+
+      return updateResult[0].affectedRows;
+    } catch(err) {
+      throw { msg: `${err} : 게시글 수정 에러 입니다` };
+    }
+  }
 }
 
 module.exports = BoardStorage;

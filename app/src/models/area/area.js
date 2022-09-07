@@ -6,6 +6,8 @@ const area = {
         if (!areaConfirm.length) {
             return {success: false, msg: `${areaNo}번 지역이 존재하지 않습니다.`}
         }
+
+        return {success: true};
     }
 }
 

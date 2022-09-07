@@ -13,6 +13,8 @@ const category = {
         if (!categoryConfirm.length) {
             return { success: false, msg: `${categoryNo}번 카테고리가 존재하지 않습니다.` };
         }
+
+        return {success: true};
     }
 }
 
