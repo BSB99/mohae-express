@@ -34,7 +34,7 @@ class BoardStorage {
     }
   }
 
-  static async createBoard(boardInfo) {
+  static async createBoard(boardInfo, deadline) {
     try {
       const {
         title,
@@ -42,7 +42,6 @@ class BoardStorage {
         price,
         summary,
         target,
-        deadline,
         user_no,
         category_no,
         area_no,

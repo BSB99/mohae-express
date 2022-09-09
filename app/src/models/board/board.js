@@ -67,7 +67,15 @@ class Board {
         return areaConfirm;
       }
 
-      const createdBoard = await BoardStorage.createBoard(boardInfo);
+      let deadline = new Date();
+
+      if (boardInfo.deadline) {
+        deadline.setDate(deadline.getDate() + boardInfo.deadline);
+      } else {
+        deadline = null;
+      }
+
+      const createdBoard = await BoardStorage.createBoard(boardInfo, deadline);
       if (createdBoard) {
         return { success: true, msg: "게시글 생성이 완료되었습니다." };
       } else {
