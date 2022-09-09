@@ -1,5 +1,5 @@
 const BoardStorage = require("./boardStorage");
-const { category } = require('../category/category');
+const { category } = require("../category/category");
 const { area } = require("../area/area");
 
 class Board {
@@ -8,8 +8,25 @@ class Board {
     this.body = req.body;
   }
 
+  async addBoardHit(boardNo) {
+    const boardHit = await BoardStorage.boardHit(boardNo);
+
+    if (boardHit) {
+      return {
+        success: true,
+        msg: `${boardNo}번 게시글 조회수가 증가하였습니다.`,
+      };
+    } else {
+      return {
+        success: false,
+        msg: `${boardNo}번 게시글 조회수가 증가하지 않았습니다.`,
+      };
+    }
+  }
+
   async readAllBoards() {
     const boards = await BoardStorage.readAllBoards();
+
     return boards;
   }
 
@@ -18,17 +35,19 @@ class Board {
       const boardNo = this.params.no;
       const board = await BoardStorage.readByOneBoard(boardNo);
 
-      if (board.length) {
-        return {
-          success: true,
-          board,
-        };
-      } else {
+      if (!board.length) {
         return {
           success: false,
           msg: `${boardNo}번 게시글은 없는 게시글 입니다.`,
         };
       }
+
+      await this.addBoardHit(boardNo);
+
+      return {
+        success: true,
+        board,
+      };
     } catch (err) {
       throw { err };
     }
@@ -37,7 +56,7 @@ class Board {
   async createBoard() {
     try {
       const boardInfo = this.body;
-    
+
       const categoryConfirm = await category.confirm(boardInfo.category_no);
       if (!categoryConfirm.success) {
         return categoryConfirm;
@@ -47,7 +66,7 @@ class Board {
       if (!areaConfirm.success) {
         return areaConfirm;
       }
-     
+
       const createdBoard = await BoardStorage.createBoard(boardInfo);
       if (createdBoard) {
         return { success: true, msg: "게시글 생성이 완료되었습니다." };
@@ -89,7 +108,7 @@ class Board {
         return { success: false, msg: "게시글 수정이 실패하였습니다." };
       }
     } catch (err) {
-      throw {err};
+      throw { err };
     }
   }
 
@@ -111,10 +130,10 @@ class Board {
       } else {
         return { success: false, msg: "게시글 삭제가 실패하였습니다." };
       }
-    }catch (err) {
-      throw {err};
+    } catch (err) {
+      throw { err };
     }
   }
 }
-  
+
 module.exports = Board;

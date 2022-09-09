@@ -10,6 +10,17 @@ class BoardStorage {
     }
   }
 
+  static async boardHit(boardNo) {
+    try {
+      const query = "UPDATE boards SET hit = hit + 1 WHERE boards.no = ?";
+      const updatedBoardHit = await mysql.query(query, [boardNo]);
+
+      return updatedBoardHit[0].affectedRows;
+    } catch (err) {
+      throw { msg: `${err} : 조회수 증가로직 에러 입니다.` };
+    }
+  }
+
   static async readByOneBoard(boardNo) {
     try {
       const query = `
@@ -68,8 +79,9 @@ class BoardStorage {
         area_no,
       } = boardInfo;
       const query = `UPDATE boards SET title = ?, description = ?, price = ?, summary = ?, target = ?, deadline = ?, category_no = ?, area_no = ?
-      where boards.no = ?;`
-      const updateResult = await mysql.query(query,[ title,
+      where boards.no = ?;`;
+      const updateResult = await mysql.query(query, [
+        title,
         description,
         price,
         summary,
@@ -77,23 +89,23 @@ class BoardStorage {
         deadline,
         category_no,
         area_no,
-        boardNo
+        boardNo,
       ]);
 
       return updateResult[0].affectedRows;
-    } catch(err) {
+    } catch (err) {
       throw { msg: `${err} : 게시글 수정 에러 입니다` };
     }
   }
 
   static async deleteBoard(boardNo) {
     try {
-      const query = `UPDATE boards SET deleted_at=NOW() WHERE no = ?;`
+      const query = `UPDATE boards SET deleted_at=NOW() WHERE no = ?;`;
       const deleteResult = await mysql.query(query, [boardNo]);
 
       return deleteResult[0].affectedRows;
-    }catch(err) {
-      throw {msg: `${err} : 게시글 삭제 에러 입니다`};
+    } catch (err) {
+      throw { msg: `${err} : 게시글 삭제 에러 입니다` };
     }
   }
 }
