@@ -65,7 +65,7 @@ class BoardStorage {
     }
   }
 
-  static async updateBoard(boardNo, boardInfo) {
+  static async updateBoard(boardNo, boardInfo, deadline) {
     try {
       const {
         title,
@@ -73,7 +73,6 @@ class BoardStorage {
         price,
         summary,
         target,
-        deadline,
         category_no,
         area_no,
       } = boardInfo;

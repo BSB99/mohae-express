@@ -8,8 +8,25 @@ class Board {
     this.body = req.body;
   }
 
+  async deadline(closeNo) {
+    try {
+      let deadline = new Date();
+
+      if (closeNo) {
+        deadline.setDate(deadline.getDate() + closeNo);
+      } else {
+        deadline = null;
+      }
+
+      return deadline;
+    }catch (err) {
+      throw {err}
+    }
+  }
+
   async addBoardHit(boardNo) {
-    const boardHit = await BoardStorage.boardHit(boardNo);
+    try {
+      const boardHit = await BoardStorage.boardHit(boardNo);
 
     if (boardHit) {
       return {
@@ -22,12 +39,19 @@ class Board {
         msg: `${boardNo}번 게시글 조회수가 증가하지 않았습니다.`,
       };
     }
+    } catch (err) {
+      throw err;
+    }
   }
 
   async readAllBoards() {
-    const boards = await BoardStorage.readAllBoards();
+    try {
+      const boards = await BoardStorage.readAllBoards();
 
-    return boards;
+      return boards;
+    } catch (err) {
+      throw err;
+    } 
   }
 
   async readByOneBoard() {
@@ -67,13 +91,7 @@ class Board {
         return areaConfirm;
       }
 
-      let deadline = new Date();
-
-      if (boardInfo.deadline) {
-        deadline.setDate(deadline.getDate() + boardInfo.deadline);
-      } else {
-        deadline = null;
-      }
+      const deadline = await this.deadline(boardInfo.deadline);
 
       const createdBoard = await BoardStorage.createBoard(boardInfo, deadline);
       if (createdBoard) {
@@ -109,7 +127,9 @@ class Board {
         return areaConfirm;
       }
 
-      const updatedBoard = await BoardStorage.updateBoard(boardNo, boardInfo);
+      const deadline = await this.deadline(boardInfo.deadline);
+
+      const updatedBoard = await BoardStorage.updateBoard(boardNo, boardInfo, deadline);
       if (updatedBoard) {
         return { success: true, msg: "게시글 수정이 완료되었습니다." };
       } else {
