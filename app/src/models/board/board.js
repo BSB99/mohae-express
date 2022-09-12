@@ -25,7 +25,8 @@ class Board {
   }
 
   async addBoardHit(boardNo) {
-    const boardHit = await BoardStorage.boardHit(boardNo);
+    try {
+      const boardHit = await BoardStorage.boardHit(boardNo);
 
     if (boardHit) {
       return {
@@ -38,12 +39,19 @@ class Board {
         msg: `${boardNo}번 게시글 조회수가 증가하지 않았습니다.`,
       };
     }
+    } catch (err) {
+      throw err;
+    }
   }
 
   async readAllBoards() {
-    const boards = await BoardStorage.readAllBoards();
+    try {
+      const boards = await BoardStorage.readAllBoards();
 
-    return boards;
+      return boards;
+    } catch (err) {
+      throw err;
+    } 
   }
 
   async readByOneBoard() {
