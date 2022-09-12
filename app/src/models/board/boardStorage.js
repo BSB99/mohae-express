@@ -1,6 +1,18 @@
 const mysql = require("../../config/mysql");
 
 class BoardStorage {
+
+  static async deadlineCheck() {
+    try {
+      const query = 'UPDATE boards SET isDeadline = true WHERE deadline is not null AND deadline <= NOW() AND isDeadline = false';
+      const checkedBoard = await mysql.query(query);
+
+      return checkedBoard[0].affectedRows;
+    } catch (err) {
+      throw {msg: `${err} : 게시글 마감 처리 에러 입니다.`};
+    }
+  }
+
   static async readAllBoards() {
     try {
       const query = "SELECT * FROM boards where boards.deleted_at IS null";

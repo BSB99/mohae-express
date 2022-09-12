@@ -1,6 +1,7 @@
 const BoardStorage = require("./boardStorage");
 const { category } = require("../category/category");
 const { area } = require("../area/area");
+const cron = require('node-cron');
 
 class Board {
   constructor(req) {
@@ -163,5 +164,11 @@ class Board {
     }
   }
 }
+
+cron.schedule('1 * * * * *', async () => {
+  const affectedRows = await BoardStorage.deadlineCheck();
+  
+  console.log(`${affectedRows}개 게시글 마감 처리`);
+});
 
 module.exports = Board;
