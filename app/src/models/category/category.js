@@ -5,6 +5,23 @@ class Category {
         this.params = req.params;
         this.body = req.body;
     }
+
+    async readCategory() {
+        try {
+            const categoryNo = this.params.no;
+
+            const categoryConfirm = await category.confirm(categoryNo);
+            if (!categoryConfirm.success) {
+                return categoryConfirm;
+            }
+
+            const categories = await CategoryStorage.readCategory(categoryNo);
+
+            return { success: true, categories };
+        } catch(err) {
+            throw {err};
+        }
+    }
 }
 
 const category = {
@@ -14,7 +31,7 @@ const category = {
             return { success: false, msg: `${categoryNo}번 카테고리가 존재하지 않습니다.` };
         }
 
-        return {success: true};
+        return { success: true };
     }
 }
 
