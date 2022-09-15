@@ -43,8 +43,8 @@ class UserStorage {
             return insertResult[0].affectedRows;
         } catch(err) {
             throw { msg: `${err} : 회원가입 에러 입니다.` }
-        }
-    }
+        };
+    };
 }
 
 module.exports = UserStorage;
