@@ -2,25 +2,41 @@ const UserStorage = require('./userStorage');
 const { major } = require('../major/major');
 const { school } = require('../school/school');
 const crypto = require('crypto');
+const ENCRYPTION_KEY = process.env.ENCRYPTION_KEY;
+const IV_LENGTH = Number(process.env.IV_LENGTH);
 
 class User {
     constructor(req) {
         this.params = req.params;
         this.body = req.body;
-    }
+    };
 
-    async emailConfrim(email) {
+    async emailFaileConfirm(email) {
         try {
             const confirm = await UserStorage.emailConfirm(email);
             if(confirm.length) {
                 return { success: false, msg: `${email}은 존재하는 email 입니다.` };
-            }
+            };
 
-            return { success: true };
+            return { success: true, data: confirm.password };
         } catch(err) {
             throw { err };
-        }
-    }
+        };
+    };
+
+    async emailSuccessConfirm(email) {
+        try {
+            const confirm = await UserStorage.emailConfirm(email);
+
+            if(confirm.length) {
+                return { success: true, salt: confirm[0].salt };
+            };
+
+            return { success: false, msg: `${email}은 존재하지 않는 email 입니다.` };
+        } catch(err) {
+            throw { err };
+        };
+    };
 
     async nicknameConfirm(nickname) {
         try {
@@ -32,16 +48,16 @@ class User {
             return { success: true };
         } catch(err) {
             throw { err };
-        }
-    }
+        };
+    };
 
     async signUp() {
         try{
             const profile = this.body;
             
-            const emailConfrim = await this.emailConfrim(profile.email);
-            if(!emailConfrim.success) {
-                return emailConfrim;
+            const emailFaileConfirm = await this.emailFaileConfirm(profile.email);
+            if(!emailFaileConfirm.success) {
+                return emailFaileConfirm;
             }
 
             const nicknameConfirm = await this.nicknameConfirm(profile.nickname);
@@ -59,8 +75,7 @@ class User {
                 return majorConfirm;
             }
 
-            const password = crypto.randomBytes(32).toString('hex');
-            const salt = crypto.pbkdf2Sync(profile.password, password, 1, 32, 'sha512').toString('hex');
+            const salt = await this.encrypt(profile.password);
 
             const affectedRows = await UserStorage.signUp(profile, salt);
             if (affectedRows) {
@@ -71,7 +86,66 @@ class User {
         } catch(err) {
             throw { err };
         };
+    };
+
+    async encrypt(password) {
+        try {
+        const iv = crypto.randomBytes(IV_LENGTH);
+        const cipher = crypto.createCipheriv(
+          'aes-256-cbc',
+          Buffer.from(ENCRYPTION_KEY),
+          iv,
+        );
+        const encrypted = cipher.update(password);
+      
+        return (
+          iv.toString('hex') +
+          ':' +
+          Buffer.concat([encrypted, cipher.final()]).toString('hex')
+        );
+      } catch(err) {
+        throw err;
+      };
     }
+
+      async decrypt(salt) {
+        try {
+        const textParts = salt.split(':');
+        const iv = Buffer.from(textParts.shift(), 'hex');
+        const encryptedText = Buffer.from(textParts.join(':'), 'hex');
+        const decipher = crypto.createDecipheriv(
+          'aes-256-cbc',
+          Buffer.from(ENCRYPTION_KEY),
+          iv,
+        );
+        const decrypted = decipher.update(encryptedText);
+      
+        return Buffer.concat([decrypted, decipher.final()]).toString();
+        } catch (err) {
+            throw err;
+        }
+    }
+
+    async signIn() {
+        try {
+            const userInfo = this.body;
+
+            const emailSuccessConfirm = await this.emailSuccessConfirm(userInfo.email);
+            if(!emailSuccessConfirm.success) {
+                return emailSuccessConfirm;
+            }
+
+            const decrypt = await this.decrypt(emailSuccessConfirm.salt);
+        
+            if (decrypt == userInfo.password) {
+                return { success: true, msg: '로그인 성공' };                
+            };
+
+            return { success: false, msg: '비밀번호가 다릅니다.' };
+        } catch(err) {
+            throw { err };
+        };
+    };
 }
 
 module.exports = User;

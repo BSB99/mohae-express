@@ -2,6 +2,7 @@ const express = require('express');
 const authCtrl = require("./user.ctrl");
 const router = express.Router();
 
-router.post('/signup',authCtrl.process.signUp);
+router.post('/signin', authCtrl.process.signIn);
+router.post('/signup', authCtrl.process.signUp);
 
 module.exports = router;
