@@ -45,6 +45,19 @@ class UserStorage {
             throw { msg: `${err} : 회원가입 에러 입니다.` }
         };
     };
+
+    static async secession(userNo) {
+        try {
+            const query = `DELETE FROM users WHERE users.no = ?`;
+            const deleteValue = await mysql.query(query, [
+                userNo,
+            ]);
+            
+            return deleteValue[0].affectedRows;
+        } catch(err) {
+            throw {msg: `${err} : 회원탈퇴 에러입니다.`};
+        };
+    };
 }
 
 module.exports = UserStorage;

@@ -29,7 +29,7 @@ class User {
             const confirm = await UserStorage.emailConfirm(email);
 
             if(confirm.length) {
-                return { success: true, salt: confirm[0].salt };
+                return { success: true, salt: confirm[0].salt, no: confirm[0].no };
             };
 
             return { success: false, msg: `${email}은 존재하지 않는 email 입니다.` };
@@ -146,6 +146,33 @@ class User {
             throw { err };
         };
     };
+
+    async secession() {
+        try{
+            const userInfo = this.body;
+
+            const emailSuccessConfirm = await this.emailSuccessConfirm(userInfo.email);
+            if(!emailSuccessConfirm.success) {
+                return emailSuccessConfirm;
+            }
+            
+            const decrypt = await this.decrypt(emailSuccessConfirm.salt);
+
+            if (decrypt == userInfo.password) {
+                const affectedRows = await UserStorage.secession(emailSuccessConfirm.no);
+                
+                if (affectedRows) {
+                    return { success: true, msg: '회원 탈퇴가 성공적으로 이루어 졌습니다.'};
+                }; 
+
+                return { success: false, msg: '회원 탈퇴 실패!'};
+            };
+
+            return { success: false, msg: '비밀번호가 다릅니다.' };
+        }catch(err) {
+            throw { err };
+        }
+    }
 }
 
 module.exports = User;
